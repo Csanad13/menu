@@ -22,7 +22,7 @@ raktarf=open("raktar.csv", "r+", encoding="utf-8")
 raktarl=raktarf.read().split("\n")          #"raktarl" nem lesz használatban, csak a "raktars" raktar szótár előkészítésére van
 raktars={}
 for i in raktarl:
-    raktars.update({i.split(";")[0]:i.split(";")[1]})
+    raktars.update({i.split(";")[0]:int(i.split(";")[1])})
 
 class Termek:
     def __init__(self,sor):
@@ -80,7 +80,24 @@ while 1==1:
         
         print(f"\nár: {menul[etel][1]}.-")
     if mode==2:
+        raktarf=open("raktar.csv", "w+", encoding="utf-8")
+        x=0
         print("raktár")
+        for i in raktarl:
+            print(raktarl[x])
+            x += 1
+        d=str(input("Miből érkezett: "))
+        r=int(input("Mennyi:"))
+        raktars[d]+=r
+        raktarfuj=str(raktars)
+        raktarfuj=raktarfuj.strip("{")
+        raktarfuj=raktarfuj.strip("}")
+        raktarfuj=raktarfuj.replace(", ","\n")
+        raktarfuj=raktarfuj.replace(":",";")
+        raktarfuj=raktarfuj.replace("'","")
+        raktarfuj=raktarfuj.replace(" ","")
+        raktarf.write(raktarfuj)
+        raktarf.close
     if mode==3:
         print("rendelés")
     if mode==4:
