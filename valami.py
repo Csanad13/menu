@@ -1,4 +1,4 @@
-menuf=open("menu.csv")                     #a "menuf" a menu fájlt jelenti, maga a fájl, akármi művelet nélkül, hogy lehessen bele írni.
+menuf=open("menu.csv", "r+")               #a "menuf" a menu fájlt jelenti, maga a fájl, akármi művelet nélkül, hogy lehessen bele írni.
 menul=menuf.read().split("\n")             #a "menul" a menu listát jelenti, használatra szétválasztva elemekre, hogy ne használat közben kelljen.
 for i in range(len(menul)):
     menul[i]=menul[i].split(";")
@@ -24,32 +24,9 @@ raktars={}
 for i in raktarl:
     raktars.update({i.split(";")[0]:int(i.split(";")[1])})
 
-class Termek:
-    def __init__(self,sor):
-        self.sor=sor
-        self.nev=menul[sor][0]
-        self.ar=menul[sor][1]
-
-class Recept:
-
-    def __init__(self,sor):
-        self.sor=sor
-        self.nev=receptekl[sor][0]
-        self.hozzavk=receptekl[sor][0:-1]
-
-class Vasarlas:
-    def __init__(self,termekek):
-        """
-        termekek (list):
-            A vásárolni kivánt termékek, a .hozzaad() művelettel lehet módositani.
-        """
-        self.termekek=list(termekek)
-    def hozzaad(self,mit):
-        """
-        mit (str):
-            EGY termék neve, amit a vásárlásba be akarunk tenni
-        """
-        self.termekek.append(mit)
+class UjEtel:
+    def __init__(self):
+        pass
 mode=0
 ##0: fo"menu"
 ##1: e'telek
@@ -57,30 +34,63 @@ mode=0
 ##3: rendele's
 ##4: e'tlap
 ##5: receptek
-while 1==1:
-    if mode==0:
-        choose=int(input("0;etelek\n1;raktar\n2;rendeles\nirja be a kivánt művelet melletti számot!\n>"))
+rendeles=[]
+while True:
+    if mode==0: ##főmenü
+        choose=int(input("0;etelek\n1;raktar\n2;rendeles\n3;asztalok\nirja be a kivánt művelet melletti számot!\n>"))
         if choose==0:
             mode=1
         if choose==1:
             mode=2
         if choose==2:
             mode=3
+        if choose==3:
+            mode=4
         print(choose,mode)
-    if mode==1:
+    if mode==1: ##ételek
         for i in range(len(receptekl)):
             print(f"{i};{receptekl[i][0]}")
         print(f"{i+1};új")
         print("irja be a módositani kivánt étel számát!")
-        etel=int(input(">"))
-
-        print(f"{receptekl[etel][0]}\nhozzávalók:")
-        for i in receptekl[etel][1:]:
-            print(i,end=" ")
-        
-        print(f"\nár: {menul[etel][1]}.-")
-    if mode==2:
-        raktarf=open("raktar.csv", "w+", encoding="utf-8")
+        try:
+            etel=int(input(">"))
+            print(f"{receptekl[etel][0]}\nhozzávalók:")
+            for i in receptekl[etel][1:]:
+                print(i,end=" ")
+            print(f"\nár: {menul[etel][1]}.-")
+            berakjae=str(input("Be akarja tenni a rendelésbe?(y=igen/n=nem)\n>"))
+            if berakjae=="y":
+                rendeles.append(etel)
+            else:
+                mode=0
+        except IndexError:
+            uj=UjEtel
+            uj.nev=(str(input("Mi legyen a neve? (kisbetűvel, egyben)")))
+            uj.ar=(int(input("Mennyibe (ft) kerüljön?")))
+            dict={}
+            inputstr="a"
+            intput=0
+            print("Adja meg az étel hozzávalóit és mennyiségeit! Ha készen van, adjon névnek üreset!")
+            while inputstr!="":
+                dict.update({inputstr:intput})
+                inputstr=""
+                inputstr=input("Hozzávaló neve:\n>")
+                if inputstr!="":
+                    intput=int(input("Hozzávaló darabszáma:\n>"))
+            dict.pop("a")
+            dictstr=str(dict)
+            dictstr=dictstr.replace("{","")
+            dictstr=dictstr.replace("}","")
+            dictstr=dictstr.replace("'","")
+            dictstr=dictstr.replace(":","-")
+            dictstr=dictstr.replace(",",";")
+            dictstr=dictstr.replace(" ","")
+            recept=f"\n{uj.nev};{dictstr}"
+            receptekf.write(recept)
+            menu=f"\n{uj.nev};{uj.ar}"
+            menuf.write(menu)
+        mode=0
+    if mode==2: ##raktár
         x=0
         print("raktár")
         for i in raktarl:
@@ -96,11 +106,22 @@ while 1==1:
         raktarfuj=raktarfuj.replace(":",";")
         raktarfuj=raktarfuj.replace("'","")
         raktarfuj=raktarfuj.replace(" ","")
+        raktarf=open("raktar.csv", "w+", encoding="utf-8")
         raktarf.write(raktarfuj)
         raktarf.close
-    if mode==3:
-        print("rendelés")
-    if mode==4:
-        print("étlap")
-    if mode==5:
-        print("receptek")
+        mode=0
+    if mode==3: ##rendelés
+        for i in vasarlasokl:
+            print(f"asztal {i[0]}: ",end="")
+            for l in i[1:]:
+                print(f"{l} ",end="")
+            print("")
+        if len(rendeles)!=0:
+            rendeles=rendeles
+            print("Aktív rendelés: ",end="")
+            for i in rendeles:
+                print(f"{menul[i][0]} ",end="")
+        else:
+            print("Aktív rendelés nincs.")
+    if mode==4: ##asztalok
+        print("asztalok")
