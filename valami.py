@@ -6,6 +6,7 @@ for i in range(len(menul)):
 asztalf=open("asztal.csv", "r+")
 asztall=asztalf.read().split("\n")
 for i in range(len(asztall)):
+    asztall[i]=asztall[i].strip()
     asztall[i]=asztall[i].split(";")
 
 receptekf=open("recept.csv", "r+")
@@ -28,12 +29,11 @@ class UjEtel:
     def __init__(self):
         pass
 mode=0
-##0: fo"menu"
-##1: e'telek
-##2: rakta'r
-##3: rendele's
-##4: e'tlap
-##5: receptek
+##0: főmenü
+##1: ételek
+##2: raktár
+##3: rendelés
+##4: asztalok
 rendeles=[]
 while True:
     if mode==0: ##főmenü
@@ -92,11 +92,11 @@ while True:
         mode=0
     if mode==2: ##raktár
         x=0
-        print("raktár")
+        print("raktár:")
         for i in raktarl:
             print(raktarl[x])
             x += 1
-        d=str(input("Miből érkezett: "))
+        d=str(input("Miből érkezett:"))
         r=int(input("Mennyi:"))
         raktars[d]+=r
         raktarfuj=str(raktars)
@@ -106,11 +106,13 @@ while True:
         raktarfuj=raktarfuj.replace(":",";")
         raktarfuj=raktarfuj.replace("'","")
         raktarfuj=raktarfuj.replace(" ","")
-        raktarf=open("raktar.csv", "w+", encoding="utf-8")
+        raktarf=open("raktar.csv", "w", encoding="utf-8")
         raktarf.write(raktarfuj)
         raktarf.close
         mode=0
     if mode==3: ##rendelés
+        for i in vasarlasokl:
+            print(i)
         for i in vasarlasokl:
             print(f"asztal {i[0]}: ",end="")
             for l in i[1:]:
@@ -123,5 +125,31 @@ while True:
                 print(f"{menul[i][0]} ",end="")
         else:
             print("Aktív rendelés nincs.")
+        mode=0
     if mode==4: ##asztalok
-        print("asztalok")
+        print("asztalok:")
+        for i in asztall:
+            print(f"Az {i[0]}. asztal {int(i[1])*"nem "}szabad")
+        print("")
+        for i in asztall:
+            print(f"{i[0]}: Az {i[0]}. asztal")
+        print(f"{int(i[0])+1}: Új asztal")
+        w=int(input("Melyik asztal szabadult fel:"))
+        if w > len(asztall):
+            asztalf.write(f"\n{len(asztall)+1};0")
+        else:
+            for i in range(len(asztall)):
+                if (i)+1 == w:
+                    asztall[i][1]=0
+                    asztalfuj=str(asztall)
+                    asztalfuj=asztalfuj.strip("{")
+                    asztalfuj=asztalfuj.strip("}")
+                    asztalfuj=asztalfuj.replace("], ","\n")
+                    asztalfuj=asztalfuj.replace(",",";")
+                    asztalfuj=asztalfuj.replace("'","")
+                    asztalfuj=asztalfuj.replace(" ","")
+                    asztalfuj=asztalfuj.replace("[","")
+                    asztalfuj=asztalfuj.replace("]","")
+                    asztalf=open("asztal.csv", "w")
+                    asztalf.write(asztalfuj)
+        mode=0
