@@ -1,3 +1,5 @@
+##ez a régi, a kész a main.py
+
 menuf=open("menu.csv", "r+")               #a "menuf" a menu fájlt jelenti, maga a fájl, akármi művelet nélkül, hogy lehessen bele írni.
 menul=menuf.read().split("\n")             #a "menul" a menu listát jelenti, használatra szétválasztva elemekre, hogy ne használat közben kelljen.
 for i in range(len(menul)):
